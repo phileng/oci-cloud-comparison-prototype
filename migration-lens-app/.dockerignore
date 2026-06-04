@@ -1,0 +1,10 @@
+node_modules
+dist
+.npm-cache
+.vite
+qa
+*.log
+.DS_Store
+Dockerfile
+compose.yaml
+deploy

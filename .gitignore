@@ -1,0 +1,24 @@
+# Dependencies and package-manager caches
+node_modules/
+.npm-cache/
+.vite/
+
+# Build output
+dist/
+
+# Local generated deployment values and secrets
+deploy/oci/generated/*values*.env
+deploy/oci/generated/*secret*
+deploy/oci/generated/*.pem
+deploy/oci/generated/*.key
+*.pem
+*.key
+
+# Logs and local OS/editor files
+*.log
+.DS_Store
+
+# Local environment files
+.env
+.env.*
+!.env.example

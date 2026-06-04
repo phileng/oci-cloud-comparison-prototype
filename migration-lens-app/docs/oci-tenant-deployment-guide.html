@@ -1,0 +1,946 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Migration Lens OCI Tenant Deployment Guide</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17202a;
+      --muted: #5a6673;
+      --line: #d8dee6;
+      --panel: #ffffff;
+      --band: #f4f7fa;
+      --code: #111820;
+      --codeText: #d8f3dc;
+      --accent: #c74634;
+      --accentDark: #8f2d20;
+      --ok: #147a3d;
+      --warn: #a46300;
+      --bad: #a52a2a;
+      --blue: #1f5f99;
+      --shadow: 0 8px 28px rgba(22, 34, 51, 0.08);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--band);
+      color: var(--ink);
+      line-height: 1.55;
+    }
+
+    a {
+      color: var(--blue);
+    }
+
+    header {
+      background: #20272c;
+      color: #fff;
+      padding: 28px 36px;
+      border-bottom: 6px solid var(--accent);
+    }
+
+    header h1 {
+      margin: 0 0 8px;
+      font-size: 34px;
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+
+    header p {
+      margin: 0;
+      color: #cdd5dd;
+      max-width: 980px;
+    }
+
+    .shell {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 22px;
+      max-width: 1480px;
+      margin: 0 auto;
+      padding: 22px;
+    }
+
+    nav {
+      position: sticky;
+      top: 14px;
+      align-self: start;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    nav h2 {
+      font-size: 14px;
+      margin: 0 0 12px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    nav a {
+      display: block;
+      padding: 8px 0;
+      text-decoration: none;
+      color: var(--ink);
+      border-top: 1px solid #eef1f4;
+      font-size: 14px;
+    }
+
+    nav a:hover {
+      color: var(--accentDark);
+    }
+
+    main {
+      min-width: 0;
+    }
+
+    section, .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      margin-bottom: 18px;
+      padding: 24px;
+    }
+
+    section h2 {
+      margin: 0 0 12px;
+      font-size: 24px;
+    }
+
+    section h3 {
+      margin: 22px 0 10px;
+      font-size: 18px;
+    }
+
+    p, li {
+      color: var(--ink);
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: #fbfcfd;
+    }
+
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+
+    .metric strong {
+      display: block;
+      margin-top: 4px;
+      font-size: 16px;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin: 16px 0;
+      flex-wrap: wrap;
+    }
+
+    .toolbar input {
+      min-width: 280px;
+      flex: 1;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-size: 14px;
+    }
+
+    button.copy, button.small {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      border-radius: 6px;
+      padding: 8px 10px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    button.copy:hover, button.small:hover {
+      border-color: var(--accent);
+      color: var(--accentDark);
+    }
+
+    details {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      margin: 12px 0;
+      background: #fbfcfd;
+    }
+
+    summary {
+      cursor: pointer;
+      padding: 12px 14px;
+      font-weight: 700;
+    }
+
+    details .inside {
+      padding: 0 14px 14px;
+    }
+
+    .command-card {
+      border: 1px solid #27323d;
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 12px 0;
+      background: var(--code);
+    }
+
+    .command-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      padding: 10px 12px;
+      background: #202a34;
+      color: #fff;
+      font-size: 13px;
+      border-bottom: 1px solid #334251;
+    }
+
+    pre {
+      margin: 0;
+      overflow-x: auto;
+      padding: 14px;
+      color: var(--codeText);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    code {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    }
+
+    :not(pre) > code {
+      color: #7a271a;
+      background: #fff1ed;
+      padding: 1px 4px;
+      border-radius: 4px;
+    }
+
+    .checklist {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .check {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px 12px;
+      background: #fff;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .check input {
+      margin-top: 4px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-size: 12px;
+      font-weight: 700;
+      background: #edf4ff;
+      color: #174f83;
+      margin: 2px 4px 2px 0;
+    }
+
+    .pill.ok {
+      background: #eaf7ef;
+      color: var(--ok);
+    }
+
+    .pill.warn {
+      background: #fff7e8;
+      color: var(--warn);
+    }
+
+    .pill.bad {
+      background: #fff0f0;
+      color: var(--bad);
+    }
+
+    .diagram {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(110px, 1fr));
+      gap: 8px;
+      align-items: stretch;
+      margin: 18px 0;
+    }
+
+    .node {
+      border: 1px solid var(--line);
+      background: #fdfdfd;
+      border-radius: 8px;
+      padding: 12px;
+      min-height: 92px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      text-align: center;
+      position: relative;
+    }
+
+    .node:not(:last-child)::after {
+      content: ">";
+      position: absolute;
+      right: -10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--accent);
+      font-weight: 900;
+      background: var(--panel);
+    }
+
+    .node strong {
+      display: block;
+      font-size: 14px;
+    }
+
+    .node span {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 14px;
+    }
+
+    th, td {
+      text-align: left;
+      border: 1px solid var(--line);
+      padding: 10px;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f0f4f8;
+    }
+
+    .callout {
+      border-left: 4px solid var(--accent);
+      background: #fff8f6;
+      padding: 12px 14px;
+      margin: 14px 0;
+      border-radius: 0 8px 8px 0;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    footer {
+      color: var(--muted);
+      font-size: 13px;
+      padding: 18px 0 28px;
+    }
+
+    @media (max-width: 1100px) {
+      .shell {
+        grid-template-columns: 1fr;
+      }
+
+      nav {
+        position: static;
+      }
+
+      .summary-grid,
+      .checklist,
+      .diagram {
+        grid-template-columns: 1fr;
+      }
+
+      .node:not(:last-child)::after {
+        content: "v";
+        right: 50%;
+        top: auto;
+        bottom: -15px;
+        transform: translateX(50%);
+      }
+    }
+
+    @media print {
+      body {
+        background: #fff;
+      }
+
+      nav, .toolbar, button.copy, button.small {
+        display: none;
+      }
+
+      .shell {
+        display: block;
+        padding: 0;
+      }
+
+      section {
+        box-shadow: none;
+        break-inside: avoid;
+      }
+
+      details {
+        border-color: #aaa;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Migration Lens OCI Tenant Deployment Guide</h1>
+    <p>Operational runbook for deploying the React/Vite prototype to OCI tenant <strong>phieng2345</strong> using OCI CLI, a private OCIR image, private Container Instance, private Load Balancer, and security evidence suitable for Security Central review preparation.</p>
+  </header>
+
+  <div class="shell">
+    <nav aria-label="Table of contents">
+      <h2>Contents</h2>
+      <a href="#overview">Overview</a>
+      <a href="#prerequisites">Prerequisites</a>
+      <a href="#values">Values Worksheet</a>
+      <a href="#deployment">OCI CLI Deployment</a>
+      <a href="#security">Security Central Readiness</a>
+      <a href="#github">GitHub Repository Setup</a>
+      <a href="#operations">Operations</a>
+      <a href="#appendix">Appendix: How It Works</a>
+      <a href="#sources">Official Sources</a>
+    </nav>
+
+    <main>
+      <section id="overview" class="searchable">
+        <h2>Overview</h2>
+        <p>This guide deploys the demo as a static web application packaged in a container. The default target is a private OCI Container Instance behind a private OCI Load Balancer. Oracle describes OCI Container Instances as serverless compute for running containers without managing servers, and this prototype fits that model because it only needs one static web container.</p>
+        <div class="summary-grid">
+          <div class="metric"><span>Tenant</span><strong>phieng2345</strong></div>
+          <div class="metric"><span>App</span><strong>migration-lens</strong></div>
+          <div class="metric"><span>Runtime</span><strong>NGINX on 8080</strong></div>
+          <div class="metric"><span>Repo</span><strong>phileng/oci-cloud-comparison-prototype</strong></div>
+        </div>
+        <div class="toolbar">
+          <input id="search" type="search" placeholder="Filter sections and command blocks">
+          <button class="small" id="expandAll" type="button">Expand all</button>
+          <button class="small" id="collapseAll" type="button">Collapse all</button>
+          <button class="small" onclick="window.print()" type="button">Print</button>
+        </div>
+        <p>
+          <span class="pill ok">Private by default</span>
+          <span class="pill ok">No app secrets</span>
+          <span class="pill warn">Security Central evidence required</span>
+          <span class="pill">OCI CLI first</span>
+        </p>
+      </section>
+
+      <section id="prerequisites" class="searchable">
+        <h2>Prerequisites</h2>
+        <ul>
+          <li>OCI CLI configured for tenant <code>phieng2345</code>, with a profile that can inspect IAM, Networking, Load Balancer, Container Instances, OCIR, Cloud Guard, Security Zones, and Vulnerability Scanning.</li>
+          <li>Docker and Colima available locally for the image build. The local demo already uses <code>migration-lens-app:local</code> and port <code>8080</code>.</li>
+          <li>GitHub CLI authenticated to <code>https://github.com/phileng</code> for repository creation and push.</li>
+          <li>An OCI auth token for Docker login to OCIR. Do not paste the token into this document, shell history, GitHub, image layers, or the React bundle.</li>
+          <li>A private subnet for the Container Instance and private Load Balancer, plus NSGs that allow only required traffic.</li>
+        </ul>
+
+        <div class="command-card" data-title="tool preflight">
+          <div class="command-head"><span>Tool preflight</span><button class="copy" type="button">Copy</button></div>
+          <pre><code>oci --version
+oci session validate
+docker context ls
+colima status
+docker ps --filter name=migration-lens-demo
+gh auth status</code></pre>
+        </div>
+      </section>
+
+      <section id="values" class="searchable">
+        <h2>Values Worksheet</h2>
+        <p>Start each deployment shell with explicit values. Commands below discover the values where possible and leave sensitive values as interactive inputs.</p>
+        <div class="command-card" data-title="base values">
+          <div class="command-head"><span>Base values</span><button class="copy" type="button">Copy</button></div>
+          <pre><code>export TENANT_NAME="phieng2345"
+export GITHUB_OWNER="phileng"
+export GITHUB_REPO="oci-cloud-comparison-prototype"
+export APP_NAME="migration-lens"
+export OCIR_REPO="migration-lens/prototype"
+export CONTAINER_PORT="8080"
+export IMAGE_TAG="$(date +%Y%m%d-%H%M%S)"
+
+export TENANCY_OCID="$(oci iam compartment list --include-root --query 'data[?\"compartment-id\"==null].id | [0]' --raw-output 2>/dev/null || true)"
+export TENANCY_NAMESPACE="$(oci os ns get --query 'data' --raw-output)"
+export OCI_REGION="$(oci iam region-subscription list --query 'data[0].\"region-name\"' --raw-output)"
+export OCI_REGION_KEY="$(oci iam region-subscription list --query 'data[0].\"region-key\"' --raw-output | tr '[:upper:]' '[:lower:]')"
+export IMAGE_NAME="${OCI_REGION_KEY}.ocir.io/${TENANCY_NAMESPACE}/${OCIR_REPO}:${IMAGE_TAG}"</code></pre>
+        </div>
+
+        <table>
+          <thead><tr><th>Variable</th><th>Purpose</th><th>How to set</th></tr></thead>
+          <tbody>
+            <tr><td><code>COMPARTMENT_OCID</code></td><td>Target compartment for app resources.</td><td>Discover with compartment list and select an approved compartment.</td></tr>
+            <tr><td><code>VCN_OCID</code></td><td>VCN for the private deployment.</td><td>Choose an existing secured VCN.</td></tr>
+            <tr><td><code>PRIVATE_SUBNET_OCID</code></td><td>Private subnet for Container Instance.</td><td>Must have egress path to pull OCIR image if required.</td></tr>
+            <tr><td><code>LB_SUBNET_OCID_1/2</code></td><td>Subnets for private Load Balancer.</td><td>Use private load balancer subnets, preferably across ADs.</td></tr>
+            <tr><td><code>APP_NSG_OCID</code></td><td>Container Instance NSG.</td><td>Allow TCP 8080 only from the LB NSG.</td></tr>
+            <tr><td><code>LB_NSG_OCID</code></td><td>Load Balancer NSG.</td><td>Allow reviewer/VPN CIDR to listener port only.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="deployment" class="searchable">
+        <h2>OCI CLI Deployment</h2>
+
+        <details open>
+          <summary>1. Discover tenant, compartment, network, and AD values</summary>
+          <div class="inside">
+            <div class="command-card" data-title="discover oci values">
+              <div class="command-head"><span>Discovery commands</span><button class="copy" type="button">Copy</button></div>
+              <pre><code>oci os ns get
+oci iam region-subscription list --all
+oci iam compartment list \
+  --compartment-id-in-subtree true \
+  --access-level ACCESSIBLE \
+  --all \
+  --include-root
+oci iam availability-domain list --compartment-id "$TENANCY_OCID" --all
+oci network vcn list --compartment-id "$COMPARTMENT_OCID" --all
+oci network subnet list --compartment-id "$COMPARTMENT_OCID" --vcn-id "$VCN_OCID" --all
+oci network nsg list --compartment-id "$COMPARTMENT_OCID" --vcn-id "$VCN_OCID" --all</code></pre>
+            </div>
+          </div>
+        </details>
+
+        <details open>
+          <summary>2. Build and push a private immutable OCIR image</summary>
+          <div class="inside">
+            <p>Oracle documents OCIR image push through Docker CLI. Use a fully qualified OCIR tag and an OCI auth token for registry login.</p>
+            <div class="command-card" data-title="ocir build push">
+              <div class="command-head"><span>Build, create repository, tag, push</span><button class="copy" type="button">Copy</button></div>
+              <pre><code>cd /Users/pheng/Codex/oci-cloud-comparison-prototype/migration-lens-app
+
+npm ci
+npm run build
+docker build -t migration-lens-app:local .
+
+oci artifacts container repository create \
+  --compartment-id "$COMPARTMENT_OCID" \
+  --display-name "$OCIR_REPO" \
+  --is-public false \
+  --is-immutable true \
+  --wait-for-state AVAILABLE
+
+docker tag migration-lens-app:local "$IMAGE_NAME"
+docker login "${OCI_REGION_KEY}.ocir.io"
+docker push "$IMAGE_NAME"</code></pre>
+            </div>
+          </div>
+        </details>
+
+        <details>
+          <summary>3. Prepare Container Instance JSON</summary>
+          <div class="inside">
+            <p>OCI CLI accepts complex JSON for Container Instance creation. Generate the template with the CLI, then fill the required fields rather than hand-writing the full payload from memory.</p>
+            <div class="command-card" data-title="container json">
+              <div class="command-head"><span>Generate and apply create JSON</span><button class="copy" type="button">Copy</button></div>
+              <pre><code>mkdir -p deploy/oci/generated
+oci container-instances container-instance create \
+  --generate-full-command-json-input \
+  > deploy/oci/generated/container-instance-create.json
+
+# Edit deploy/oci/generated/container-instance-create.json:
+# - compartmentId: $COMPARTMENT_OCID
+# - availabilityDomain: selected AD name
+# - shape: CI.Standard.E4.Flex or approved equivalent
+# - shapeConfig: small CPU/memory for static app
+# - containers[0].imageUrl: $IMAGE_NAME
+# - containers[0].displayName: migration-lens
+# - containers[0].ports/containerPort: 8080
+# - vnics[0].subnetId: $PRIVATE_SUBNET_OCID
+# - vnics[0].isPublicIpAssigned: false
+# - vnics[0].nsgIds: [$APP_NSG_OCID]
+# - containerRestartPolicy: ALWAYS
+# - freeformTags/definedTags: owner, env, data-classification, cost-center
+
+oci container-instances container-instance create \
+  --from-json file://deploy/oci/generated/container-instance-create.json \
+  --wait-for-state SUCCEEDED \
+  --max-wait-seconds 1800</code></pre>
+            </div>
+          </div>
+        </details>
+
+        <details>
+          <summary>4. Create private Load Balancer path</summary>
+          <div class="inside">
+            <div class="command-card" data-title="private load balancer">
+              <div class="command-head"><span>Private Load Balancer, backend set, backend, listener</span><button class="copy" type="button">Copy</button></div>
+              <pre><code>oci lb load-balancer create \
+  --compartment-id "$COMPARTMENT_OCID" \
+  --display-name "${APP_NAME}-private-lb" \
+  --shape-name flexible \
+  --shape-details '{"minimumBandwidthInMbps":10,"maximumBandwidthInMbps":10}' \
+  --subnet-ids "[\"$LB_SUBNET_OCID_1\",\"$LB_SUBNET_OCID_2\"]" \
+  --is-private true \
+  --is-delete-protection-enabled true \
+  --is-request-id-enabled true \
+  --request-id-header X-Request-Id \
+  --wait-for-state SUCCEEDED
+
+export LOAD_BALANCER_OCID="&lt;from-create-response&gt;"
+export CONTAINER_PRIVATE_IP="&lt;container-instance-vnic-private-ip&gt;"
+
+oci lb backend-set create \
+  --load-balancer-id "$LOAD_BALANCER_OCID" \
+  --name migration_lens_backend \
+  --policy LEAST_CONNECTIONS \
+  --health-checker-protocol HTTP \
+  --health-checker-port 8080 \
+  --health-checker-url-path /healthz \
+  --health-checker-return-code 200 \
+  --health-checker-interval-in-ms 10000 \
+  --health-checker-timeout-in-ms 3000 \
+  --health-checker-retries 3 \
+  --wait-for-state SUCCEEDED
+
+oci lb backend create \
+  --load-balancer-id "$LOAD_BALANCER_OCID" \
+  --backend-set-name migration_lens_backend \
+  --ip-address "$CONTAINER_PRIVATE_IP" \
+  --port 8080 \
+  --weight 1 \
+  --wait-for-state SUCCEEDED
+
+oci lb listener create \
+  --load-balancer-id "$LOAD_BALANCER_OCID" \
+  --name migration_lens_http_private \
+  --default-backend-set-name migration_lens_backend \
+  --protocol HTTP \
+  --port 80 \
+  --wait-for-state SUCCEEDED</code></pre>
+            </div>
+            <div class="callout">For internet-facing review, terminate TLS and WAF at an approved front door instead of exposing the Container Instance directly. This runbook defaults to private access.</div>
+          </div>
+        </details>
+
+        <details>
+          <summary>5. Verify deployment</summary>
+          <div class="inside">
+            <div class="command-card" data-title="deployment verification">
+              <div class="command-head"><span>Deployment verification</span><button class="copy" type="button">Copy</button></div>
+              <pre><code>oci container-instances container-instance get \
+  --container-instance-id "$CONTAINER_INSTANCE_OCID"
+
+oci lb load-balancer get \
+  --load-balancer-id "$LOAD_BALANCER_OCID"
+
+oci lb backend-health get \
+  --load-balancer-id "$LOAD_BALANCER_OCID" \
+  --backend-set-name migration_lens_backend \
+  --backend-name "${CONTAINER_PRIVATE_IP}:8080"
+
+curl -I "http://&lt;private-lb-ip-or-private-dns&gt;/"
+curl "http://&lt;private-lb-ip-or-private-dns&gt;/healthz"</code></pre>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <section id="security" class="searchable">
+        <h2>Security Central Readiness</h2>
+        <p>This section prepares evidence for Security Central review. It does not guarantee pass/fail because active Security Central policies and tenant-specific exceptions are outside this static runbook.</p>
+
+        <div class="checklist" data-checklist="security">
+          <label class="check"><input type="checkbox" data-key="private-ci">Container Instance has no public IP.</label>
+          <label class="check"><input type="checkbox" data-key="private-lb">Load Balancer is private and delete-protected.</label>
+          <label class="check"><input type="checkbox" data-key="nsg">NSGs allow TCP 8080 only from LB NSG to app NSG.</label>
+          <label class="check"><input type="checkbox" data-key="ocir-private">OCIR repository is private and immutable.</label>
+          <label class="check"><input type="checkbox" data-key="scan">Vulnerability Scanning target covers the OCIR repository.</label>
+          <label class="check"><input type="checkbox" data-key="no-high">No unresolved Critical or High image findings before promotion.</label>
+          <label class="check"><input type="checkbox" data-key="cloud-guard">Cloud Guard target covers the compartment or parent.</label>
+          <label class="check"><input type="checkbox" data-key="tags">Defined tags capture owner, environment, data classification, cost center, and lifecycle.</label>
+          <label class="check"><input type="checkbox" data-key="logs">LB access logs and container deployment evidence are retained.</label>
+          <label class="check"><input type="checkbox" data-key="no-secrets">No secrets are embedded in source, bundle, image layers, or docs.</label>
+        </div>
+
+        <h3>Security Commands</h3>
+        <div class="command-card" data-title="cloud guard and scanning">
+          <div class="command-head"><span>Cloud Guard and image scanning checks</span><button class="copy" type="button">Copy</button></div>
+          <pre><code>oci cloud-guard target list --compartment-id "$COMPARTMENT_OCID" --all
+oci cloud-guard detector-recipe list --compartment-id "$COMPARTMENT_OCID" --all
+
+oci vulnerability-scanning container scan recipe list --compartment-id "$COMPARTMENT_OCID" --all
+oci vulnerability-scanning container scan target create \
+  --compartment-id "$COMPARTMENT_OCID" \
+  --display-name "${APP_NAME}-ocir-scan-target" \
+  --container-scan-recipe-id "$CONTAINER_SCAN_RECIPE_OCID" \
+  --target-registry file://deploy/oci/generated/container-scan-target.json
+
+oci vulnerability-scanning container scan result list \
+  --compartment-id "$COMPARTMENT_OCID" \
+  --all</code></pre>
+        </div>
+
+        <h3>Network Security Rules</h3>
+        <table>
+          <thead><tr><th>Rule</th><th>Source</th><th>Destination</th><th>Port</th><th>Rationale</th></tr></thead>
+          <tbody>
+            <tr><td>Reviewer ingress</td><td>VPN, bastion, or approved reviewer CIDR</td><td>LB NSG</td><td>80 or 443</td><td>Restrict reviewer entry path.</td></tr>
+            <tr><td>LB to app</td><td>LB NSG</td><td>App NSG</td><td>8080</td><td>Only load balancer can reach NGINX.</td></tr>
+            <tr><td>App egress</td><td>App NSG</td><td>OCI services or approved egress path</td><td>443</td><td>Pull image and reach required OCI services only.</td></tr>
+            <tr><td>Blocked</td><td>0.0.0.0/0</td><td>App NSG</td><td>Any inbound</td><td>No direct public inbound access to Container Instance.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="github" class="searchable">
+        <h2>GitHub Repository Setup</h2>
+        <p>Create a dedicated private repository under <code>phileng</code>. Keep generated secrets and local caches out of source control.</p>
+        <div class="command-card" data-title="github repo setup">
+          <div class="command-head"><span>Create and push repository</span><button class="copy" type="button">Copy</button></div>
+          <pre><code>cd /Users/pheng/Codex
+
+gh repo create phileng/oci-cloud-comparison-prototype \
+  --private \
+  --description "OCI cloud comparison prototype with local Docker and OCI deployment guide" \
+  --source /Users/pheng/Codex/oci-cloud-comparison-prototype \
+  --remote origin
+
+git add oci-cloud-comparison-prototype/README.md
+git add oci-cloud-comparison-prototype/migration-lens-app
+git commit -m "Add Migration Lens prototype and OCI deployment guide"
+git push -u origin main</code></pre>
+        </div>
+
+        <h3>Recommended repository hygiene</h3>
+        <div class="command-card" data-title="gitignore checklist">
+          <div class="command-head"><span>.gitignore entries to include</span><button class="copy" type="button">Copy</button></div>
+          <pre><code>node_modules/
+.npm-cache/
+.vite/
+dist/
+deploy/oci/generated/*values*.env
+deploy/oci/generated/*secret*
+*.pem
+*.key
+*.log
+.DS_Store</code></pre>
+        </div>
+
+        <p class="muted">If a GitHub Actions deployment workflow is added later, keep OCI credentials in GitHub Actions secrets or OIDC-based federation. Do not hardcode OCI auth tokens or OCIDs that identify sensitive environments.</p>
+      </section>
+
+      <section id="operations" class="searchable">
+        <h2>Operations</h2>
+
+        <details open>
+          <summary>Maintain and upgrade</summary>
+          <div class="inside">
+            <div class="command-card" data-title="maintain upgrade">
+              <div class="command-head"><span>Maintain and upgrade</span><button class="copy" type="button">Copy</button></div>
+              <pre><code>npm outdated
+npm update
+npm audit
+npm run build
+docker build --pull -t migration-lens-app:local .
+
+export IMAGE_TAG="$(date +%Y%m%d-%H%M%S)"
+export IMAGE_NAME="${OCI_REGION_KEY}.ocir.io/${TENANCY_NAMESPACE}/${OCIR_REPO}:${IMAGE_TAG}"
+docker tag migration-lens-app:local "$IMAGE_NAME"
+docker push "$IMAGE_NAME"</code></pre>
+            </div>
+          </div>
+        </details>
+
+        <details>
+          <summary>Promote new image or roll back</summary>
+          <div class="inside">
+            <div class="command-card" data-title="promote rollback">
+              <div class="command-head"><span>Promote or roll back image tag</span><button class="copy" type="button">Copy</button></div>
+              <pre><code># Promote a new tag or roll back to a known-good previous tag.
+export IMAGE_TAG="&lt;approved-image-tag&gt;"
+export IMAGE_NAME="${OCI_REGION_KEY}.ocir.io/${TENANCY_NAMESPACE}/${OCIR_REPO}:${IMAGE_TAG}"
+
+# Update deploy/oci/generated/container-instance-update.json with the approved image URL.
+oci container-instances container-instance update \
+  --container-instance-id "$CONTAINER_INSTANCE_OCID" \
+  --from-json file://deploy/oci/generated/container-instance-update.json \
+  --wait-for-state SUCCEEDED</code></pre>
+            </div>
+          </div>
+        </details>
+
+        <details>
+          <summary>Inspect and troubleshoot</summary>
+          <div class="inside">
+            <div class="command-card" data-title="inspect troubleshoot">
+              <div class="command-head"><span>Inspect resources</span><button class="copy" type="button">Copy</button></div>
+              <pre><code>oci container-instances container-instance get --container-instance-id "$CONTAINER_INSTANCE_OCID"
+oci container-instances work-request list --compartment-id "$COMPARTMENT_OCID" --all
+oci lb load-balancer get --load-balancer-id "$LOAD_BALANCER_OCID"
+oci lb backend-health get \
+  --load-balancer-id "$LOAD_BALANCER_OCID" \
+  --backend-set-name migration_lens_backend \
+  --backend-name "${CONTAINER_PRIVATE_IP}:8080"
+oci vulnerability-scanning container scan result list --compartment-id "$COMPARTMENT_OCID" --all</code></pre>
+            </div>
+          </div>
+        </details>
+
+        <details>
+          <summary>Delete safely</summary>
+          <div class="inside">
+            <div class="callout">Before deletion, capture final evidence and echo every OCID. Do not delete shared VCN, subnet, compartment, or security resources from this app runbook.</div>
+            <div class="command-card" data-title="delete safely">
+              <div class="command-head"><span>Delete app-owned resources only</span><button class="copy" type="button">Copy</button></div>
+              <pre><code>printf 'LB: %s\nCI: %s\nOCIR Repo: %s\n' \
+  "$LOAD_BALANCER_OCID" "$CONTAINER_INSTANCE_OCID" "$OCIR_REPOSITORY_OCID"
+
+read -r -p "Type DELETE-MIGRATION-LENS to continue: " CONFIRM
+test "$CONFIRM" = "DELETE-MIGRATION-LENS"
+
+oci lb load-balancer delete --load-balancer-id "$LOAD_BALANCER_OCID"
+oci container-instances container-instance delete --container-instance-id "$CONTAINER_INSTANCE_OCID"
+oci artifacts container repository delete --repository-id "$OCIR_REPOSITORY_OCID"</code></pre>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <section id="appendix" class="searchable">
+        <h2>Appendix: How the Prototype Works in This Deployment</h2>
+        <p>The prototype is a static React/Vite application. The source code uses React state and an in-code representative mapping dataset to compare OCI, AWS, Azure, and GCP service categories. The deployment does not add an application backend.</p>
+
+        <div class="diagram" aria-label="Deployment request path">
+          <div class="node"><strong>User or reviewer</strong><span>Private route, VPN, or approved network</span></div>
+          <div class="node"><strong>Private Load Balancer</strong><span>HTTP/TLS entry point</span></div>
+          <div class="node"><strong>Backend set</strong><span>Health check /healthz</span></div>
+          <div class="node"><strong>Container Instance</strong><span>Private subnet, no public IP</span></div>
+          <div class="node"><strong>NGINX</strong><span>Port 8080</span></div>
+          <div class="node"><strong>Static assets</strong><span>HTML, CSS, JavaScript</span></div>
+          <div class="node"><strong>Interactive UI</strong><span>Browser-side filters and inspector</span></div>
+        </div>
+
+        <h3>Build and runtime model</h3>
+        <ul>
+          <li><code>npm run build</code> runs Vite and produces the static <code>dist/</code> bundle.</li>
+          <li>The Dockerfile builds the app in a Node stage and copies <code>dist/</code> into an unprivileged NGINX runtime image.</li>
+          <li>NGINX listens on <code>8080</code>, matching the local Docker demo and OCI backend port.</li>
+          <li>The container serves static files only; there is no server-side API, database, session store, or user-specific state.</li>
+        </ul>
+
+        <h3>Health and routing behavior</h3>
+        <ul>
+          <li><code>/healthz</code> is served directly by NGINX and returns <code>ok</code>, so Load Balancer and Container Instance health checks do not depend on React initialization.</li>
+          <li>The SPA fallback rule <code>try_files $uri $uri/ /index.html</code> sends unknown browser paths back to the React entrypoint.</li>
+          <li>Static asset responses include browser cache headers for CSS, JS, images, and fonts.</li>
+        </ul>
+
+        <h3>Browser-side prototype behavior</h3>
+        <ul>
+          <li>The app starts with the <code>Route</code> layer selected and lets reviewers filter categories, search services, select architecture layers, inspect migration notes, and view gap counters.</li>
+          <li>All provider comparison data is bundled into the JavaScript artifact. Treat it as representative seed data, not an authoritative all-services catalog.</li>
+          <li>Because the UI runs entirely in the browser, the deployed container can be replaced safely by publishing a new immutable OCIR image tag and updating the Container Instance.</li>
+        </ul>
+
+        <h3>Security implications</h3>
+        <ul>
+          <li>Do not place secrets, auth tokens, private OCIDs, or internal-only data in React source, build artifacts, environment variables, GitHub files, or Docker layers.</li>
+          <li>The static app should be reviewed as public-to-internal documentation unless a data owner explicitly approves stronger classification.</li>
+          <li>Operational evidence lives at the OCI layers: Load Balancer health, Container Instance lifecycle state, OCIR image scan results, Cloud Guard findings, and approved network rules.</li>
+        </ul>
+      </section>
+
+      <section id="sources" class="searchable">
+        <h2>Official Sources</h2>
+        <ul>
+          <li><a href="https://docs.oracle.com/iaas/Content/container-instances/overview-of-container-instances.htm">OCI Container Instances overview</a>: serverless container compute, shape, networking, restart policy, and resource configuration.</li>
+          <li><a href="https://docs.oracle.com/en-us/iaas/Content/Registry/Tasks/registrypushingimagesusingthedockercli.htm">Pushing images to OCIR using Docker CLI</a>: Docker tag, login, and push flow.</li>
+          <li><a href="https://docs.oracle.com/en-us/iaas/security-zone/using/security-zones.htm">OCI Security Zones overview</a>: policy enforcement for resources in security-zone compartments.</li>
+          <li><a href="https://docs.oracle.com/en-us/iaas/scanning/using/image-scan.htm">OCI Vulnerability Scanning container image scans</a>: container image vulnerability scan targets and reports.</li>
+          <li><a href="https://docs.oracle.com/iaas/Content/Network/Concepts/networksecuritygroups.htm">OCI Network Security Groups</a>: packet-level traffic control for VNICs and resources.</li>
+        </ul>
+      </section>
+
+      <footer>
+        Generated for the Migration Lens prototype. Keep this file free of secrets and tenant-specific restricted values before publishing.
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    const copyButtons = document.querySelectorAll("button.copy");
+    copyButtons.forEach((button) => {
+      button.addEventListener("click", async () => {
+        const card = button.closest(".command-card");
+        const code = card.querySelector("code").innerText;
+        await navigator.clipboard.writeText(code);
+        const original = button.textContent;
+        button.textContent = "Copied";
+        setTimeout(() => { button.textContent = original; }, 1200);
+      });
+    });
+
+    const search = document.getElementById("search");
+    const searchable = document.querySelectorAll(".searchable, .command-card");
+    search.addEventListener("input", () => {
+      const query = search.value.trim().toLowerCase();
+      searchable.forEach((item) => {
+        const hit = item.textContent.toLowerCase().includes(query);
+        item.classList.toggle("hidden", query && !hit);
+      });
+    });
+
+    document.getElementById("expandAll").addEventListener("click", () => {
+      document.querySelectorAll("details").forEach((detail) => { detail.open = true; });
+    });
+
+    document.getElementById("collapseAll").addEventListener("click", () => {
+      document.querySelectorAll("details").forEach((detail) => { detail.open = false; });
+    });
+
+    const checklistKey = "migration-lens-oci-guide-checklist";
+    const saved = JSON.parse(localStorage.getItem(checklistKey) || "{}");
+    document.querySelectorAll(".check input").forEach((box) => {
+      const key = box.dataset.key;
+      box.checked = Boolean(saved[key]);
+      box.addEventListener("change", () => {
+        saved[key] = box.checked;
+        localStorage.setItem(checklistKey, JSON.stringify(saved));
+      });
+    });
+  </script>
+</body>
+</html>

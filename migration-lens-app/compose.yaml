@@ -1,0 +1,7 @@
+services:
+  migration-lens:
+    build:
+      context: .
+    image: migration-lens-app:local
+    ports:
+      - "8080:8080"
