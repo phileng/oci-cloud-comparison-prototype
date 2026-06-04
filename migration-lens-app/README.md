@@ -1,5 +1,9 @@
 # Migration Lens: OCI, AWS, Azure, and GCP Comparison Prototype
 
+GitHub repository:
+
+https://github.com/phileng/oci-cloud-comparison-prototype
+
 This demo app is the output of a Codex prompt using the **Product Design** plugin.
 The workflow started from a supplied architecture diagram showing a layered
 application stack:
@@ -49,6 +53,15 @@ The app has no backend API, database, or server-side session state. The
 container serves HTML, CSS, and JavaScript only.
 
 ## Local Development
+
+From a fresh checkout:
+
+```bash
+git clone https://github.com/phileng/oci-cloud-comparison-prototype.git
+cd oci-cloud-comparison-prototype/migration-lens-app
+```
+
+Install dependencies and start the development server:
 
 ```bash
 npm ci
